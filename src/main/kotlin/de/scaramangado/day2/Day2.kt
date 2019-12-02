@@ -27,12 +27,13 @@ private fun printAnswer2() {
       .map { it.first to compute(it.second) }
       .map { it.first to it.second[0] }
       .filter { it.second == 19690720 }
+      .map { it.first to it.first.let { r -> 100 * r.first + r.second } }
       .toList()
 
   require(matches.size == 1)
 
   println("Answer 2:")
-  println(matches[0].first.let { 100 * it.first + it.second })
+  println(matches[0].second)
 }
 
 private fun compute(intCode: List<Int>): List<Int> {

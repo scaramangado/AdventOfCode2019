@@ -1,11 +1,5 @@
 package de.scaramangado.day1
 
-import java.io.File
-import java.io.FileReader
-import java.io.InputStreamReader
-import java.net.URI
-import java.nio.file.Files
-import java.nio.file.Paths
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
@@ -18,6 +12,21 @@ fun main() {
               .asSequence()
               .map { calculateFuelNeeded(it) }
               .sum())
+
+  println()
+  println("Answer 2:")
+  println(readInput()
+              .asSequence()
+              .map { calculateTotalFuel(it) }
+              .sum())
+}
+
+private fun calculateTotalFuel(baseFuel: Int): Int {
+
+  val fuelNeeded = calculateFuelNeeded(baseFuel)
+
+  return if (fuelNeeded <= 0) 0
+  else fuelNeeded + calculateTotalFuel(fuelNeeded)
 }
 
 private fun calculateFuelNeeded(mass: Int): Int =

@@ -4,6 +4,14 @@ import de.scaramangado.day1.Day1
 import de.scaramangado.intcode.CPU
 import kotlin.streams.toList
 
+/*
+Answer 1:
+9706670
+
+Answer 2:
+2552
+ */
+
 fun main() {
 
   printAnswer1()

@@ -1,6 +1,7 @@
 package de.scaramangado.day2
 
 import de.scaramangado.day1.Day1
+import de.scaramangado.intcode.CPU
 import kotlin.streams.toList
 
 fun main() {
@@ -16,7 +17,7 @@ private fun printAnswer1() {
   input[2] = 2
 
   println("Answer 1:")
-  println(compute(input))
+  println(CPU(input).compute()[0])
 }
 
 private fun printAnswer2() {
@@ -24,7 +25,7 @@ private fun printAnswer2() {
   val matches = allPairs()
       .parallelStream()
       .map { it to initialState(it) }
-      .map { it.first to compute(it.second) }
+      .map { it.first to CPU(it.second).compute() }
       .map { it.first to it.second[0] }
       .filter { it.second == 19690720 }
       .map { it.first to it.first.let { r -> 100 * r.first + r.second } }
@@ -34,25 +35,6 @@ private fun printAnswer2() {
 
   println("Answer 2:")
   println(matches[0].second)
-}
-
-private fun compute(intCode: List<Int>): List<Int> {
-
-  val code = intCode.toMutableList()
-  var pointer = 0
-
-  while (code[pointer] != 99) {
-    val operation: Int.(Int) -> Int = when {
-      code[pointer] == 1 -> Int::plus
-      code[pointer] == 2 -> Int::times
-      else -> throw IllegalStateException()
-    }
-
-    code[code[pointer + 3]] = code[code[pointer + 1]].operation(code[code[pointer + 2]])
-    pointer += 4
-  }
-
-  return code.toList()
 }
 
 private fun allPairs(): List<Pair<Int, Int>> {

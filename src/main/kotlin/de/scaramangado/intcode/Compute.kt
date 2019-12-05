@@ -18,7 +18,7 @@ private class Operation(private val pointer: Int, private val intCode: MutableLi
 
   private val operationAsList by lazy {
     intCode[pointer].toString().toCharArray().reversed().map { it.toString().toInt() }.let { ZeroIntList(it) }
-        .let { mutableListOf((it[0] + 10 * it[1]), it.subList(2, it.size)) }
+        .let { ZeroIntList(listOf((it[0] + 10 * it[1]), *it.subList(2, it.size).toTypedArray())) }
   }
 
   private val opCode by lazy { operationAsList[0] }
@@ -42,13 +42,12 @@ private class Operation(private val pointer: Int, private val intCode: MutableLi
   private inner class ZeroIntList(private val ints: List<Int>) {
     operator fun get(i: Int): Int = if (i >= ints.size) 0 else ints[i]
     val size = ints.size
-    fun subList(start: Int, end: Int) = ZeroIntList(
+    fun subList(start: Int, end: Int) =
         when {
           start >= ints.size -> emptyList()
           end > ints.size -> ints.subList(start, ints.size)
           else -> ints.subList(start, end)
         }
-    )
   }
 
   fun run(): Int {
@@ -60,15 +59,22 @@ private class Operation(private val pointer: Int, private val intCode: MutableLi
     }
   }
 
+  private fun getArgument(n: Int) =
+      when (parameterMode(n)) {
+        ParameterMode.POSITION -> intCode[intCode[pointer + n + 1]]
+        ParameterMode.IMMEDIATE -> intCode[pointer + n + 1]
+      }
+
   private fun runBiFunction(): Int {
 
-    val operation: Int.(Int) -> Int = when {
-      intCode[pointer] == 1 -> Int::plus
-      intCode[pointer] == 2 -> Int::times
-      else -> throw IllegalStateException()
-    }
+    val operation: Int.(Int) -> Int =
+        when (opCode) {
+          1 -> Int::plus
+          2 -> Int::times
+          else -> throw IllegalStateException()
+        }
 
-    intCode[intCode[pointer + 3]] = intCode[intCode[pointer + 1]].operation(intCode[intCode[pointer + 2]])
+    intCode[intCode[pointer + 3]] = getArgument(0).operation(getArgument(1))
 
     return pointer + 4
   }
@@ -82,7 +88,7 @@ private class Operation(private val pointer: Int, private val intCode: MutableLi
 
   private fun runRunnable(): Int {
     require(intCode[pointer] == 4)
-    println("IntCode Output: ${intCode[intCode[pointer + 1]]}")
+    println("IntCode Output: ${getArgument(0)}")
     return pointer + 2
   }
 

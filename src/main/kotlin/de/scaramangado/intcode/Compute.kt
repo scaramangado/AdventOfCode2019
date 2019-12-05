@@ -32,9 +32,10 @@ private class Operation(private val pointer: Int, private val intCode: MutableLi
 
   private fun getOpType(): OpType =
       when (opCode) {
-        in 1..2 -> OpType.BI_FUNCTION
+        in listOf(1,2,7,8) -> OpType.BI_FUNCTION
         3 -> OpType.FUNCTION
         4 -> OpType.RUNNABLE
+        in listOf(5,6) -> OpType.CONDITIONAL
         99 -> OpType.TERMINAL
         else -> throw IllegalArgumentException("OpCode $opCode does not exist")
       }
@@ -55,6 +56,7 @@ private class Operation(private val pointer: Int, private val intCode: MutableLi
       OpType.BI_FUNCTION -> runBiFunction()
       OpType.FUNCTION -> runFunction()
       OpType.RUNNABLE -> runRunnable()
+      OpType.CONDITIONAL -> runConditional()
       OpType.TERMINAL -> -1
     }
   }
@@ -67,29 +69,40 @@ private class Operation(private val pointer: Int, private val intCode: MutableLi
 
   private fun runBiFunction(): Int {
 
-    val operation: Int.(Int) -> Int =
+    intCode[intCode[pointer + 3]] =
         when (opCode) {
-          1 -> Int::plus
-          2 -> Int::times
+          1 -> getArgument(0) + getArgument(1)
+          2 -> getArgument(0) * getArgument(1)
+          7 -> if (getArgument(0) < getArgument(1)) 1 else 0
+          8 -> if (getArgument(0) == getArgument(1)) 1 else 0
           else -> throw IllegalStateException()
         }
-
-    intCode[intCode[pointer + 3]] = getArgument(0).operation(getArgument(1))
 
     return pointer + 4
   }
 
   private fun runFunction(): Int {
-    require(intCode[pointer] == 3)
+    require(opCode == 3)
     println("Enter a Number:")
     intCode[intCode[pointer + 1]] = readLine()?.toInt() ?: throw IllegalArgumentException("Number must be entered.")
     return pointer + 2
   }
 
   private fun runRunnable(): Int {
-    require(intCode[pointer] == 4)
+    require(opCode == 4)
     println("IntCode Output: ${getArgument(0)}")
     return pointer + 2
+  }
+
+  private fun runConditional(): Int {
+
+    val check = when (opCode) {
+      5 -> getArgument(0) != 0
+      6 -> getArgument(0) == 0
+      else -> throw IllegalArgumentException()
+    }
+
+    return if (check) getArgument(1) else pointer + 3
   }
 
   enum class ParameterMode {
@@ -97,6 +110,6 @@ private class Operation(private val pointer: Int, private val intCode: MutableLi
   }
 
   enum class OpType {
-    BI_FUNCTION, FUNCTION, RUNNABLE, TERMINAL
+    BI_FUNCTION, FUNCTION, RUNNABLE, CONDITIONAL, TERMINAL
   }
 }

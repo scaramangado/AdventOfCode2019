@@ -5,7 +5,7 @@ import de.scaramangado.intcode.CPU
 
 fun main() {
 
-  // Question 1: input 0; Question 2: input 5
+  // Question 1: input 1; Question 2: input 5
   CPU(originalInput).compute()
 }
 

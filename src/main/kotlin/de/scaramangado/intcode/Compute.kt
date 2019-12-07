@@ -1,6 +1,7 @@
 package de.scaramangado.intcode
 
-class CPU(private val intCode: List<Int>) {
+class CPU(private val intCode: List<Int>, private val input: IntExchange = ConsoleIntExchange(),
+          private val output: IntExchange = ConsoleIntExchange()) {
 
   fun compute(): List<Int> {
 
@@ -8,13 +9,14 @@ class CPU(private val intCode: List<Int>) {
     var pointer = 0
 
     while (true) {
-      pointer = Operation(pointer, code).run()
+      pointer = Operation(pointer, code, input, output).run()
       if (pointer < 0) return code.toList()
     }
   }
 }
 
-private class Operation(private val pointer: Int, private val intCode: MutableList<Int>) {
+private class Operation(private val pointer: Int, private val intCode: MutableList<Int>, private val input: IntExchange,
+                        private val output: IntExchange) {
 
   private val operationAsList by lazy {
     intCode[pointer].toString().toCharArray().reversed().map { it.toString().toInt() }.let { ZeroIntList(it) }
@@ -32,10 +34,10 @@ private class Operation(private val pointer: Int, private val intCode: MutableLi
 
   private fun getOpType(): OpType =
       when (opCode) {
-        in listOf(1,2,7,8) -> OpType.BI_FUNCTION
+        in listOf(1, 2, 7, 8) -> OpType.BI_FUNCTION
         3 -> OpType.FUNCTION
         4 -> OpType.RUNNABLE
-        in listOf(5,6) -> OpType.CONDITIONAL
+        in listOf(5, 6) -> OpType.CONDITIONAL
         99 -> OpType.TERMINAL
         else -> throw IllegalArgumentException("OpCode $opCode does not exist")
       }
@@ -83,14 +85,13 @@ private class Operation(private val pointer: Int, private val intCode: MutableLi
 
   private fun runFunction(): Int {
     require(opCode == 3)
-    println("Enter a Number:")
-    intCode[intCode[pointer + 1]] = readLine()?.toInt() ?: throw IllegalArgumentException("Number must be entered.")
+    intCode[intCode[pointer + 1]] = input.readInt()
     return pointer + 2
   }
 
   private fun runRunnable(): Int {
     require(opCode == 4)
-    println("IntCode Output: ${getArgument(0)}")
+    output.addInt(getArgument(0))
     return pointer + 2
   }
 

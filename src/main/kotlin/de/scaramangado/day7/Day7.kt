@@ -5,6 +5,7 @@ import de.scaramangado.intcode.CPU
 import de.scaramangado.intcode.IntExchange
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
+import kotlin.streams.toList
 
 fun main() {
 
@@ -27,7 +28,7 @@ fun main() {
 
   val permutationsProblem2 = listOf(5, 6, 7, 8, 9).permutations()
 
-  permutationsProblem2.map { sequence ->
+  permutationsProblem2.parallelStream().map { sequence ->
 
     val finished = AtomicBoolean(false)
 
@@ -61,9 +62,9 @@ fun main() {
       finished.set(true)
     }
 
-    while (!finished.get()) Thread.sleep(100)
+    while (!finished.get()) Thread.sleep(5)
     readE.readInt()
-  }.max().run { println("Answer 2:\n$this") }
+  }.toList().max().run { println("Answer 2:\n$this") }
 }
 
 val originalInput by lazy {

@@ -11,7 +11,7 @@ open class IntExchange(private val debug: Boolean = false) {
 
   open fun readInt(): Int {
 
-    while (buffer.isEmpty()) Thread.sleep(10)
+    while (buffer.isEmpty()) Thread.sleep(3)
     return buffer.removeAt(0).also { if (debug) println("Take $it") }
   }
 }

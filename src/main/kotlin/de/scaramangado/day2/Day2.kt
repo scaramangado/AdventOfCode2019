@@ -35,7 +35,7 @@ private fun printAnswer2() {
       .map { it to initialState(it) }
       .map { it.first to CPU(it.second).compute() }
       .map { it.first to it.second[0] }
-      .filter { it.second == 19690720 }
+      .filter { it.second == 19690720L }
       .map { it.first to it.first.let { r -> 100 * r.first + r.second } }
       .toList()
 

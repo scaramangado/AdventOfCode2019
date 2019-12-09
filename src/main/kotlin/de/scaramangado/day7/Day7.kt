@@ -18,10 +18,10 @@ fun main() {
 
     var lastOutput = 0
     sequence.forEach {
-      writeToCpu.addInt(it)
-      writeToCpu.addInt(lastOutput)
+      writeToCpu.addNumber(it)
+      writeToCpu.addNumber(lastOutput)
       CPU(originalInput, writeToCpu, readFromCpu).compute()
-      lastOutput = readFromCpu.readInt()
+      lastOutput = readFromCpu.readNumber()
     }
     lastOutput
   }.max().run { println("Answer 1:\n$this") }
@@ -38,12 +38,12 @@ fun main() {
     val readD = IntExchange()
     val readE = IntExchange()
 
-    readE.addInt(sequence[0])
-    readE.addInt(0)
-    readA.addInt(sequence[1])
-    readB.addInt(sequence[2])
-    readC.addInt(sequence[3])
-    readD.addInt(sequence[4])
+    readE.addNumber(sequence[0])
+    readE.addNumber(0)
+    readA.addNumber(sequence[1])
+    readB.addNumber(sequence[2])
+    readC.addNumber(sequence[3])
+    readD.addNumber(sequence[4])
 
     thread {
       CPU(originalInput, readE, readA).compute()
@@ -63,7 +63,7 @@ fun main() {
     }
 
     while (!finished.get()) Thread.sleep(5)
-    readE.readInt()
+    readE.readNumber()
   }.toList().max().run { println("Answer 2:\n$this") }
 }
 

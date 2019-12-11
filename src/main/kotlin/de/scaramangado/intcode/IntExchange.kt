@@ -1,3 +1,3 @@
 package de.scaramangado.intcode
 
-class IntExchange: NumberExchange<Int>()
+class IntExchange(debug: DebugMode = DebugMode.NONE): NumberExchange<Int>(debug)

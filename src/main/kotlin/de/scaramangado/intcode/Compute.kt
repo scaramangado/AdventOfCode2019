@@ -53,7 +53,10 @@ private class Operation(private val state: CpuState, private val intCode: ZeroLi
       OpType.FUNCTION -> runFunction()
       OpType.RUNNABLE -> runRunnable()
       OpType.CONDITIONAL -> runConditional()
-      OpType.TERMINAL -> state.withPointer(-1)
+      OpType.TERMINAL -> {
+        output.done()
+        state.withPointer(-1)
+      }
     }
   }
 

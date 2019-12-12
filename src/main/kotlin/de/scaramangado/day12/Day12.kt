@@ -8,6 +8,11 @@ fun main() {
   Universe(originalInput)
       .also { it.simulateTimeSteps(1000) }
       .run { println("Answer 1:\n${this.getTotalEnergy()}") }
+
+  listOf(Universe::simulateXStep, Universe::simulateYStep, Universe::simulateZStep)
+      .map { Universe(originalInput).findLoop(it) }
+      .lcm()
+      .run { println("Answer 2:\n${this}") }
 }
 
 private class Universe(private val bodies: List<Body>) {
@@ -70,8 +75,7 @@ private class Universe(private val bodies: List<Body>) {
             it.body2.vy--
           }
 
-          this == 0L -> {
-          }
+          this == 0L -> {}
 
           else -> throw IllegalStateException()
         }
@@ -106,6 +110,21 @@ private class Universe(private val bodies: List<Body>) {
     bodies.forEach { it.z += it.vz }
   }
 
+  fun findLoop(simulateMethod: Universe.() -> Unit): Long {
+
+    val initialState = bodies.map { it.copy() }
+    simulateMethod()
+
+    var i = 1L
+
+    while (bodies != initialState) {
+      i++
+      simulateMethod()
+    }
+
+    return i
+  }
+
   fun getTotalEnergy() = bodies.map { it.getEnergy() }.sum()
 
   override fun toString(): String = bodies.joinToString("\n") { it.toString() }
@@ -122,11 +141,8 @@ private class BodyPair(val body1: Body, val body2: Body) {
   override fun hashCode() = body1.hashCode() + body2.hashCode()
 }
 
-private class Body(var x: Long, var y: Long, var z: Long) {
-
-  var vx = 0L
-  var vy = 0L
-  var vz = 0L
+private data class Body(var x: Long, var y: Long, var z: Long, var vx: Long = 0L, var vy: Long = 0L,
+                        var vz: Long = 0L) {
 
   fun getEnergy() = (abs(x) + abs(y) + abs(z)) * (abs(vx) + abs(vy) + abs(vz))
 
@@ -142,20 +158,31 @@ private fun parsePositionalData(positionString: String): Body {
   return Body(getCoordinate("x"), getCoordinate("y"), getCoordinate("z"))
 }
 
-private val testInput by lazy {
-  """
-    <x=-8, y=-10, z=0>
-    <x=5, y=5, z=10>
-    <x=2, y=-7, z=3>
-    <x=9, y=-8, z=-3>
-  """.trimIndent()
-      .lines()
-      .map { parsePositionalData(it) }
-}
-
 private val originalInput by lazy {
   Day1::class.java.classLoader.getResource("day12/input_puzzle_1")?.readText()
       ?.lines()
       ?.map { parsePositionalData(it) }
       ?: emptyList()
+}
+
+private fun List<Number>.lcm(): Long {
+
+  require(isNotEmpty())
+
+  fun lcm(vararg numbers: Long): Long {
+
+    if (numbers.size > 2) {
+      return lcm(lcm(*numbers.copyOfRange(0, 2)), *numbers.copyOfRange(2, numbers.size))
+    }
+
+    fun gcd(a: Long, b: Long): Long {
+      return if (b == 0L) a
+      else gcd(b, a % b)
+    }
+
+    return numbers[0] * numbers[1] / gcd(numbers[0], numbers[1])
+  }
+
+  return if (size == 1) this[0].toLong()
+  else lcm(*map { it.toLong() }.toLongArray())
 }

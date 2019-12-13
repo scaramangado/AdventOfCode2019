@@ -1,6 +1,6 @@
 package de.scaramangado.intcode
 
-abstract class NumberExchange<T : Number>(private val debugMode: DebugMode = DebugMode.NONE) {
+abstract class NumberExchange<T : Number>(var debugMode: DebugMode = DebugMode.NONE) {
 
   private val buffer = mutableListOf<T>()
   private var done = false
@@ -12,6 +12,7 @@ abstract class NumberExchange<T : Number>(private val debugMode: DebugMode = Deb
 
   open fun readNumber(): T {
 
+    if (debugMode == DebugMode.LOG) println("Try take")
     if (debugMode == DebugMode.SLEEP) Thread.sleep(4)
     while (buffer.isEmpty()) Thread.sleep(3)
     return buffer.removeAt(0).also { if (debugMode == DebugMode.LOG) println("Take $it") }
@@ -22,6 +23,8 @@ abstract class NumberExchange<T : Number>(private val debugMode: DebugMode = Deb
   fun done() {
     done = true
   }
+
+  fun ready() = buffer.isNotEmpty()
 
   enum class DebugMode {
     NONE, LOG, SLEEP

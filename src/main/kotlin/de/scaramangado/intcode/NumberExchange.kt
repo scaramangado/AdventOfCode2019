@@ -7,6 +7,7 @@ abstract class NumberExchange<T : Number>(var debugMode: DebugMode = DebugMode.N
 
   open fun addNumber(i: T) {
     if (debugMode == DebugMode.LOG) println("Add $i")
+    if (debugMode == DebugMode.CHARS) print(i.toChar())
     buffer.add(i)
   }
 
@@ -27,6 +28,6 @@ abstract class NumberExchange<T : Number>(var debugMode: DebugMode = DebugMode.N
   fun ready() = buffer.isNotEmpty()
 
   enum class DebugMode {
-    NONE, LOG, SLEEP
+    NONE, LOG, SLEEP, CHARS
   }
 }

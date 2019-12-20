@@ -135,7 +135,7 @@ private class Screen {
   }
 }
 
-private fun <E> List<E>.uniqueResult(): E? {
+fun <E> List<E>.uniqueResult(): E? {
 
   require(size <= 1)
 
